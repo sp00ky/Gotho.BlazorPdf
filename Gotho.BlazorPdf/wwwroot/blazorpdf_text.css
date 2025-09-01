@@ -1,0 +1,63 @@
+.blazorpdf-text__canvas {
+    position: absolute;
+}
+
+.blazorpdf-text__container {
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    text-align: center;
+    gap: 15px;
+    background-color: rgba(232, 231, 234, 1);
+    border-radius: 15px;
+    padding: 25px;
+    z-index: 999;
+}
+
+.blazorpdf-text__close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.blazorpdf-text__close button{
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.blazorpdf-text__close button:hover {
+    cursor: pointer;
+}
+
+.blazorpdf-text__input-group {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.blazorpdf-text__input-group label{
+    width: 50%;
+    color: black;
+}
+
+.blazorpdf-text__input-group input{
+    width: 50%;
+}
+
+.blazorpdf-text__hr {
+    width: 100%;
+}
+
+.blazorpdf-text__button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.blazorpdf-text__button-group button {
+    width: 100%;
+}
