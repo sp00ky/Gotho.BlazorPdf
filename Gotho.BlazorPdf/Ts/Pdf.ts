@@ -1,6 +1,7 @@
 import {PDFDocumentProxy, getFilenameFromUrl} from "pdfjs-dist"
 import {PdfState} from "./PdfState";
 import {PdfDrawLayer} from "./PdfDrawLayer";
+import {PdfTextLayer} from "./PdfTextLayer";
 
 const pdfInstances = {}
 
@@ -23,6 +24,7 @@ export class Pdf {
     public source: string;
     
     public drawLayer: PdfDrawLayer;
+    public textLayer: PdfTextLayer;
 
     constructor(id: string, scale: number, rotation: number, url: string, singlePageMode: boolean, source: string, password: string = null) {
         this.id = id;
@@ -40,6 +42,7 @@ export class Pdf {
         this.source = source.toLowerCase();
         this.password = password
         this.drawLayer = new PdfDrawLayer(id);
+        this.textLayer = new PdfTextLayer(id);
 
         pdfInstances[this.id] = this;
     }

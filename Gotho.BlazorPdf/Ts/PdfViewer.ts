@@ -55,12 +55,21 @@ export function updatePdf(dotnetReference: any, pdfDto: PdfState) {
     const previousPage = pdf.currentPage;
     pdf.updatePdf(pdfDto)
     pdf.drawLayer.updatePenSettings(pdfDto.penColor, pdfDto.penThickness);
+    pdf.textLayer.updateSettings(pdfDto.textColor, pdfDto.fontSize);
     
     if (pdf.drawLayer.enabled !== pdfDto.drawLayerEnabled && pdf.singlePageMode) {
         if (pdfDto.drawLayerEnabled) {
             pdf.drawLayer.enable();
         } else {
             pdf.drawLayer.disable();
+        }
+    }
+
+    if (pdf.textLayer.enabled !== pdfDto.textLayerEnabled && pdf.singlePageMode) {
+        if (pdfDto.textLayerEnabled) {
+            pdf.textLayer.enable();
+        } else {
+            pdf.textLayer.disable();
         }
     }
 
@@ -149,6 +158,26 @@ export async function printDocument(dotnetReference: any, id: string) {
             mergedContext.drawImage(annotationCanvas, 0, 0);
         }
 
+        // Draw text annotations
+        const textLayer = pdf.textLayer;
+        const pageTexts = textLayer.textStore[pageNum] || [];
+        if (pageTexts.length > 0) {
+            const textCanvas = document.createElement('canvas');
+            textCanvas.width = mergedCanvas.width;
+            textCanvas.height = mergedCanvas.height;
+            const textCtx = textCanvas.getContext('2d');
+
+            for (const t of pageTexts) {
+                textCtx.fillStyle = t.color;
+                textCtx.font = `${t.size}px sans-serif`;
+                const x = t.x * textCanvas.width;
+                const y = t.y * textCanvas.height;
+                textCtx.fillText(t.text, x, y);
+            }
+
+            mergedContext.drawImage(textCanvas, 0, 0);
+        }
+
         // Add the result to the list
         imageDataArray.push(mergedCanvas.toDataURL('image/png'));
     }
@@ -204,6 +233,16 @@ export function undoLastStroke(dotnetReference: any, id: string) {
 export function clearStrokesForPage(dotnetReference: any, id: string) {
     const pdf = Pdf.getPdf(id);
     pdf.drawLayer.clearPageStrokes();
+}
+
+export function undoLastText(dotnetReference: any, id: string) {
+    const pdf = Pdf.getPdf(id);
+    pdf.textLayer.undoLastText();
+}
+
+export function clearTextsForPage(dotnetReference: any, id: string) {
+    const pdf = Pdf.getPdf(id);
+    pdf.textLayer.clearPageTexts();
 }
 
 function scrollToPage(id: string, pageNumber: number) {
@@ -268,6 +307,7 @@ function renderPdf(pdf: Pdf) {
 
             // Update draw layer
             pdf.drawLayer.updateCanvas(pdf.currentPage, viewport.height, viewport.width, pdf.canvas.offsetLeft, pdf.canvas.offsetTop, pdf.rotation);
+            pdf.textLayer.updateCanvas(pdf.currentPage, viewport.height, viewport.width, pdf.canvas.offsetLeft, pdf.canvas.offsetTop, pdf.rotation);
         })
     } else {
         const container = document.getElementById(pdf.id);

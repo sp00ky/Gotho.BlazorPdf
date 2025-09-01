@@ -1,0 +1,7 @@
+.blazorpdf-text__canvas {
+    position: absolute;
+}
+
+.blazorpdf-text__canvas:hover {
+    cursor: text;
+}

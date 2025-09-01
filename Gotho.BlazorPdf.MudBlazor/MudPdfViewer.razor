@@ -88,6 +88,8 @@
                 <MudDivider/>
                 <MudMenuItem IconColor="MudColors.IconColor" Icon="@Icons.Draw" Label="@LocalizedStrings.Draw"
                              OnClick="ToggleDrawingAsync"/>
+                <MudMenuItem IconColor="MudColors.IconColor" Icon="@Icons.Text" Label="@LocalizedStrings.Text"
+                             OnClick="ToggleTextAsync"/>
             </MudMenu>
         </MudToolBar>
         @if (Loading)
@@ -167,6 +169,27 @@
                         </MudCardActions>
                     </MudCard>
                 }
+                @if (PdfFile.TextLayer.Enabled)
+                {
+                    <MudCard Class="mudpdf_drawcard">
+                        <MudCardHeader Class="justify-space-between">
+                            <MudText Align="Align.Center">@LocalizedStrings.TextTools</MudText>
+                            <MudIconButton Icon="@Icons.TextClose" Color="Color.Default" OnClick="ToggleTextAsync"/>
+                        </MudCardHeader>
+                        <MudCardActions Class="justify-center">
+                            <MudStack>
+                                <MudColorPicker Label="@LocalizedStrings.TextColor" ShowAlpha="false"
+                                                Value="@PdfFile.TextLayer.TextColor" ValueChanged="TextColorChanged"/>
+                                <MudSlider T="int" Min="8" Max="72" Value="PdfFile.TextLayer.FontSize"
+                                           ValueChanged="FontSizeChanged">@LocalizedStrings.TextSize</MudSlider>
+                            </MudStack>
+                        </MudCardActions>
+                        <MudCardActions Class="justify-center">
+                            <MudButton OnClick="UndoLastTextAsync">@LocalizedStrings.TextUndo</MudButton>
+                            <MudButton OnClick="ClearAllPageTextsAsync">@LocalizedStrings.TextClear</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
             </div>
 
             <div class="@(Error is not null ? "blazorpdf-d-none" : "")" style="margin: auto">
@@ -188,6 +211,10 @@
                         <div>
                             @* Drawing Layer *@
                             <canvas id="@($"{PdfFile.Id}_drawing")" class="blazorpdf-drawing__canvas"></canvas>
+                        </div>
+                        <div>
+                            @* Text Annotation Layer *@
+                            <canvas id="@($"{PdfFile.Id}_text_annotation")" class="blazorpdf-text__canvas"></canvas>
                         </div>
                         <div>
                             @* Text Layer *@
@@ -254,6 +281,16 @@
     private async Task ThicknessChanged(int obj)
     {
         await UpdatePenThickness(obj);
+    }
+
+    private async Task TextColorChanged(MudColor obj)
+    {
+        await UpdateTextColorAsync(obj.Value);
+    }
+
+    private async Task FontSizeChanged(int obj)
+    {
+        await UpdateFontSize(obj);
     }
 
 }
