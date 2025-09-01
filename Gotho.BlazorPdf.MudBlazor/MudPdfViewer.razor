@@ -282,4 +282,10 @@
         await UpdatePenThickness(obj);
     }
 
+    private async Task TextColorChanged(MudColor color) =>
+        await UpdateTextColorAsync(color.Value);
+
+    private async Task FontChanged(string font) =>
+        await UpdateTextFontAsync(font);
+
 }
