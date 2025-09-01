@@ -25,6 +25,12 @@ public class BlazorPdfLocalizedStrings
     public string DrawingThickness { get; set; } = "Thickness";
     public string DrawingUndo { get; set; } = "Undo";
     public string DrawingClear { get; set; } = "Clear";
+    public string Text { get; set; } = "Text";
+    public string TextTools { get; set; } = "Text Tools";
+    public string TextColor { get; set; } = "Color";
+    public string TextFont { get; set; } = "Font";
+    public string TextUndo { get; set; } = "Undo";
+    public string TextClear { get; set; } = "Clear";
     public string PasswordRequired { get; set; } = "Password Required";
     public string PasswordHint { get; set; } = "Please enter the password for the PDF document";
 }

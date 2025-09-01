@@ -88,6 +88,8 @@
                 <MudDivider/>
                 <MudMenuItem IconColor="MudColors.IconColor" Icon="@Icons.Draw" Label="@LocalizedStrings.Draw"
                              OnClick="ToggleDrawingAsync"/>
+                <MudMenuItem IconColor="MudColors.IconColor" Icon="@Icons.Text" Label="@LocalizedStrings.Text"
+                             OnClick="ToggleTextAsync"/>
             </MudMenu>
         </MudToolBar>
         @if (Loading)
@@ -167,6 +169,26 @@
                         </MudCardActions>
                     </MudCard>
                 }
+                @if (PdfFile.TextLayer.Enabled)
+                {
+                    <MudCard Class="mudpdf_drawcard">
+                        <MudCardHeader Class="justify-space-between">
+                            <MudText Align="Align.Center">@LocalizedStrings.TextTools</MudText>
+                            <MudIconButton Icon="@Icons.TextClose" Color="Color.Default" OnClick="ToggleTextAsync"/>
+                        </MudCardHeader>
+                        <MudCardActions Class="justify-center">
+                            <MudStack>
+                                <MudColorPicker Label="@LocalizedStrings.TextColor" ShowAlpha="false"
+                                                Value="@PdfFile.TextLayer.TextColor" ValueChanged="TextColorChanged"/>
+                                <MudTextField Label="@LocalizedStrings.TextFont" Value="@PdfFile.TextLayer.Font" ValueChanged="FontChanged"/>
+                            </MudStack>
+                        </MudCardActions>
+                        <MudCardActions Class="justify-center">
+                            <MudButton OnClick="UndoLastTextAsync">@LocalizedStrings.TextUndo</MudButton>
+                            <MudButton OnClick="ClearAllPageTextAsync">@LocalizedStrings.TextClear</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
             </div>
 
             <div class="@(Error is not null ? "blazorpdf-d-none" : "")" style="margin: auto">
@@ -188,6 +210,10 @@
                         <div>
                             @* Drawing Layer *@
                             <canvas id="@($"{PdfFile.Id}_drawing")" class="blazorpdf-drawing__canvas"></canvas>
+                        </div>
+                        <div>
+                            @* Text Annotation Layer *@
+                            <canvas id="@($"{PdfFile.Id}_textannotation")" class="blazorpdf-text__canvas"></canvas>
                         </div>
                         <div>
                             @* Text Layer *@

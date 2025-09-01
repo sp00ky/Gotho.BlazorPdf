@@ -25,6 +25,7 @@ public class Pdf
     public Zoom Zooming { get; init; } = new();
     public Page Paging { get; init; } = new();
     public DrawLayer DrawLayer { get; set; } = new();
+    public TextLayer TextLayer { get; set; } = new();
 
     public string? Password { get; private set; } = null;
 
@@ -61,6 +62,9 @@ public class Pdf
             DrawLayerEnabled = DrawLayer.Enabled,
             PenColor = DrawLayer.PenColor,
             PenThickness = DrawLayer.PenThickness,
+            TextLayerEnabled = TextLayer.Enabled,
+            TextColor = TextLayer.TextColor,
+            TextFont = TextLayer.Font,
         };
     }
 }

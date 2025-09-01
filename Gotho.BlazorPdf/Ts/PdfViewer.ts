@@ -34,6 +34,14 @@ export function initPdfViewer(dotnetReference: any, pdfDto: PdfState, singlePage
 
     if (pdfDto.url) {
         const pdf = new Pdf(pdfDto.id, pdfDto.scale, pdfDto.orientation, pdfDto.url, singlePageMode, pdfDto.source, pdfDto.password)
+        pdf.drawLayer.updatePenSettings(pdfDto.penColor, pdfDto.penThickness);
+        pdf.textLayer.updateTextSettings(pdfDto.textColor, pdfDto.textFont);
+        if (pdfDto.drawLayerEnabled && singlePageMode) {
+            pdf.drawLayer.enable();
+        }
+        if (pdfDto.textLayerEnabled && singlePageMode) {
+            pdf.textLayer.enable();
+        }
 
         pdfjs.getDocument(getDocumentInit(pdfDto)).promise.then(doc => {
             pdf.setDocument(doc)
@@ -55,12 +63,21 @@ export function updatePdf(dotnetReference: any, pdfDto: PdfState) {
     const previousPage = pdf.currentPage;
     pdf.updatePdf(pdfDto)
     pdf.drawLayer.updatePenSettings(pdfDto.penColor, pdfDto.penThickness);
-    
+    pdf.textLayer.updateTextSettings(pdfDto.textColor, pdfDto.textFont);
+
     if (pdf.drawLayer.enabled !== pdfDto.drawLayerEnabled && pdf.singlePageMode) {
         if (pdfDto.drawLayerEnabled) {
             pdf.drawLayer.enable();
         } else {
             pdf.drawLayer.disable();
+        }
+    }
+
+    if (pdf.textLayer.enabled !== pdfDto.textLayerEnabled && pdf.singlePageMode) {
+        if (pdfDto.textLayerEnabled) {
+            pdf.textLayer.enable();
+        } else {
+            pdf.textLayer.disable();
         }
     }
 
@@ -119,33 +136,40 @@ export async function printDocument(dotnetReference: any, id: string) {
         mergedContext.drawImage(pdfImage, 0, 0);
 
         // Draw annotation layer
+        const annotationCanvas = document.createElement('canvas');
+        annotationCanvas.width = mergedCanvas.width;
+        annotationCanvas.height = mergedCanvas.height;
+        const annotationCtx = annotationCanvas.getContext('2d');
+
         const drawingLayer = pdf.drawLayer;
         const pageStrokes = drawingLayer.drawingStore[pageNum] || [];
+        for (const stroke of pageStrokes) {
+            annotationCtx.beginPath();
+            annotationCtx.strokeStyle = stroke.color;
+            annotationCtx.lineWidth = stroke.thickness;
 
-        if (pageStrokes.length > 0) {
-            const annotationCanvas = document.createElement('canvas');
-            annotationCanvas.width = mergedCanvas.width;
-            annotationCanvas.height = mergedCanvas.height;
-            const annotationCtx = annotationCanvas.getContext('2d');
+            stroke.points.forEach((p, i) => {
+                const x = p.x * annotationCanvas.width;
+                const y = p.y * annotationCanvas.height;
+                if (i === 0) {
+                    annotationCtx.moveTo(x, y);
+                } else {
+                    annotationCtx.lineTo(x, y);
+                }
+            });
 
-            for (const stroke of pageStrokes) {
-                annotationCtx.beginPath();
-                annotationCtx.strokeStyle = stroke.color;
-                annotationCtx.lineWidth = stroke.thickness;
+            annotationCtx.stroke();
+        }
 
-                stroke.points.forEach((p, i) => {
-                    const x = p.x * annotationCanvas.width;
-                    const y = p.y * annotationCanvas.height;
-                    if (i === 0) {
-                        annotationCtx.moveTo(x, y);
-                    } else {
-                        annotationCtx.lineTo(x, y);
-                    }
-                });
+        const textLayer = pdf.textLayer;
+        const pageTexts = textLayer.textStore[pageNum] || [];
+        for (const t of pageTexts) {
+            annotationCtx.fillStyle = t.color;
+            annotationCtx.font = t.font;
+            annotationCtx.fillText(t.text, t.x * annotationCanvas.width, t.y * annotationCanvas.height);
+        }
 
-                annotationCtx.stroke();
-            }
-
+        if (pageStrokes.length > 0 || pageTexts.length > 0) {
             mergedContext.drawImage(annotationCanvas, 0, 0);
         }
 
@@ -204,6 +228,16 @@ export function undoLastStroke(dotnetReference: any, id: string) {
 export function clearStrokesForPage(dotnetReference: any, id: string) {
     const pdf = Pdf.getPdf(id);
     pdf.drawLayer.clearPageStrokes();
+}
+
+export function undoLastText(dotnetReference: any, id: string) {
+    const pdf = Pdf.getPdf(id);
+    pdf.textLayer.undoLastText();
+}
+
+export function clearTextForPage(dotnetReference: any, id: string) {
+    const pdf = Pdf.getPdf(id);
+    pdf.textLayer.clearPageText();
 }
 
 function scrollToPage(id: string, pageNumber: number) {
@@ -268,6 +302,7 @@ function renderPdf(pdf: Pdf) {
 
             // Update draw layer
             pdf.drawLayer.updateCanvas(pdf.currentPage, viewport.height, viewport.width, pdf.canvas.offsetLeft, pdf.canvas.offsetTop, pdf.rotation);
+            pdf.textLayer.updateCanvas(pdf.currentPage, viewport.height, viewport.width, pdf.canvas.offsetLeft, pdf.canvas.offsetTop, pdf.rotation);
         })
     } else {
         const container = document.getElementById(pdf.id);
