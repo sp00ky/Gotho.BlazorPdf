@@ -158,9 +158,9 @@
                         <MudCardActions Class="justify-center">
                             <MudStack>
                                 <MudColorPicker Label="@LocalizedStrings.DrawingColor" ShowAlpha="false"
-                                                Value="@PdfFile.DrawLayer.PenColor" ValueChanged="ColorChanged"/>
+                                                Value="@PdfFile.DrawLayer.PenColor"/>
                                 <MudSlider T="int" Min="1" Max="40" Value="PdfFile.DrawLayer.PenThickness"
-                                           ValueChanged="ThicknessChanged">@LocalizedStrings.DrawingThickness</MudSlider>
+                                           ValueChanged="@UpdatePenThickness">@LocalizedStrings.DrawingThickness</MudSlider>
                             </MudStack>
                         </MudCardActions>
                         <MudCardActions Class="justify-center">
@@ -179,8 +179,8 @@
                         <MudCardActions Class="justify-center">
                             <MudStack>
                                 <MudColorPicker Label="@LocalizedStrings.TextColor" ShowAlpha="false"
-                                                Value="@PdfFile.TextLayer.TextColor" ValueChanged="TextColorChanged"/>
-                                <MudTextField Label="@LocalizedStrings.TextFont" Value="@PdfFile.TextLayer.Font" ValueChanged="FontChanged"/>
+                                                Value="@PdfFile.TextLayer.TextColor"/>
+                                <MudTextField Label="@LocalizedStrings.TextFont" Value="@PdfFile.TextLayer.Font"/>
                             </MudStack>
                         </MudCardActions>
                         <MudCardActions Class="justify-center">
