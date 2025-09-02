@@ -1,7 +1,5 @@
 @using Gotho.BlazorPdf.BlazorPdfIcons
 
-@inherits ComponentBase
-
 <div class="blazorpdf-container">
     <div role="toolbar" class="blazorpdf-toolbar" style="background-color: @Colors.Toolbar">
         @*Toggle Thumbnail*@
@@ -169,6 +167,14 @@
                                 <span
                                     class="blazorpdf-toolbar__menu-menu-item-text">@LocalizedStrings.Draw</span>
                             </button>
+                            <button type="button" class="blazorpdf-toolbar__menu-menu-item" disabled="@InputDisabled()"
+                                    @onclick="ToggleTextAsync">
+                                <span class="blazorpdf-toolbar__menu-menu-item-icon">
+                                    <TextIcon Color="@Colors.Icon"/>
+                                </span>
+                                <span
+                                    class="blazorpdf-toolbar__menu-menu-item-text">@LocalizedStrings.Text</span>
+                            </button>
                         }
                     </div>
                 </div>
@@ -246,6 +252,30 @@
                     </div>
                 </div>
             }
+            @if (PdfFile.TextLayer.Enabled)
+            {
+                <div class="blazorpdf-drawing__container">
+                    <div class="blazorpdf-drawing__close">
+                        <button type="button" @onclick="@ToggleTextAsync">
+                            <CloseIcon Color="@Colors.Icon"/>
+                        </button>
+                    </div>
+                    <span>@LocalizedStrings.TextTools</span>
+                    <div class="blazorpdf-drawing__input-group">
+                        <label for="@($"{PdfFile.Id}_text_color")">@LocalizedStrings.TextColor</label>
+                        <input id="@($"{PdfFile.Id}_text_color")" type="color" @onchange="TextColorChanged" value="@PdfFile.TextLayer.TextColor"/>
+                    </div>
+                    <div class="blazorpdf-drawing__input-group">
+                        <label for="@($"{PdfFile.Id}_text_size")">@LocalizedStrings.TextSize</label>
+                        <input id="@($"{PdfFile.Id}_text_size")" type="range" min="8" max="72" value="@PdfFile.TextLayer.FontSize" @onchange="FontSizeChanged"/>
+                    </div>
+                    <hr class="blazorpdf-drawing__hr"/>
+                    <div class="blazorpdf-drawing__button-group">
+                        <button type="button" @onclick="UndoLastTextAsync">@LocalizedStrings.TextUndo</button>
+                        <button type="button" @onclick="ClearAllPageTextsAsync">@LocalizedStrings.TextClear</button>
+                    </div>
+                </div>
+            }
         </div>
 
 
@@ -263,17 +293,21 @@
                     }
                 </div>
 
-                @if (SinglePageMode)
-                {
-                    <div>
-                        @* Drawing Layer *@
-                        <canvas id="@($"{PdfFile.Id}_drawing")" class="blazorpdf-drawing__canvas"></canvas>
-                    </div>
-                    <div>
-                        @* Text Layer *@
-                        <div id="@($"{PdfFile.Id}_text")" class="textLayer"></div>
-                    </div>
-                }
+                    @if (SinglePageMode)
+                    {
+                        <div>
+                            @* Drawing Layer *@
+                            <canvas id="@($"{PdfFile.Id}_drawing")" class="blazorpdf-drawing__canvas"></canvas>
+                        </div>
+                        <div>
+                            @* Text Annotation Layer *@
+                            <canvas id="@($"{PdfFile.Id}_text_annotation")" class="blazorpdf-text__canvas"></canvas>
+                        </div>
+                        <div>
+                            @* Text Layer *@
+                            <div id="@($"{PdfFile.Id}_text")" class="textLayer"></div>
+                        </div>
+                    }
             </div>
         </div>
     </div>
@@ -313,5 +347,19 @@
             thickness = parsedInt;
 
         await UpdatePenThickness(thickness);
+    }
+
+    private async Task TextColorChanged(ChangeEventArgs obj)
+    {
+        await UpdateTextColorAsync(obj.Value as string ?? "#000000");
+    }
+
+    private async Task FontSizeChanged(ChangeEventArgs obj)
+    {
+        var size = 16;
+        if (int.TryParse(obj.Value?.ToString(), out var parsed))
+            size = parsed;
+
+        await UpdateFontSize(size);
     }
 }

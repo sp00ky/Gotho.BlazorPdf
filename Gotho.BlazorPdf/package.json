@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "ts": "npx esbuild Ts/PdfViewer.ts --bundle --format=esm --target=esnext --outfile=wwwroot/blazorpdf.js --keep-names",
-    "css": "npx clean-css-cli -o wwwroot/blazorpdf.min.css wwwroot/blazorpdf.css",
+    "css": "npx clean-css-cli -o wwwroot/blazorpdf.min.css wwwroot/blazorpdf.css wwwroot/blazorpdf_text.css",
     "ts-min": "npx uglifyjs wwwroot/blazorpdf.js -o wwwroot/blazorpdf.min.js "
   },
   "repository": {
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "file-saver": "^2.0.5",
-    "pdfjs-dist": "^4.2.67",
+    "pdfjs-dist": "^4.10.38",
     "print-js": "^1.6.0"
   }
 }

@@ -295,6 +295,38 @@ public partial class PdfViewer : ComponentBase
     }
 
     #endregion
+
+    #region Text
+
+    protected async Task ToggleTextAsync()
+    {
+        PdfFile.TextLayer.Toggle();
+        await PdfInterop.UpdateAsync(ObjectReference!, PdfFile);
+    }
+
+    protected async Task UpdateTextColorAsync(string color)
+    {
+        PdfFile.TextLayer.UpdateColor(color);
+        await PdfInterop.UpdateAsync(ObjectReference!, PdfFile);
+    }
+
+    protected async Task UpdateFontSize(int size)
+    {
+        PdfFile.TextLayer.UpdateFontSize(size);
+        await PdfInterop.UpdateAsync(ObjectReference!, PdfFile);
+    }
+
+    protected async Task UndoLastTextAsync()
+    {
+        await PdfInterop.UndoLastTextAsync(ObjectReference!, PdfFile);
+    }
+
+    protected async Task ClearAllPageTextsAsync()
+    {
+        await PdfInterop.ClearTextsForPageAsync(ObjectReference!, PdfFile);
+    }
+
+    #endregion
     
     protected async Task DownloadDocumentAsync()
     {

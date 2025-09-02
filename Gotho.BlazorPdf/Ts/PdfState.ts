@@ -10,4 +10,7 @@ export class PdfState {
     public drawLayerEnabled: boolean
     public penColor: string
     public penThickness: number
+    public textLayerEnabled: boolean
+    public textColor: string
+    public fontSize: number
 }
